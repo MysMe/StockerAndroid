@@ -1,6 +1,7 @@
 #include <jni.h>
 #include <string>
-#include <D:\Code\StockerBackend\StockerBackend\stockTable.h>
+#include <C:\Users\Adam\source\repos\StockerBackend\include\stockTable.h>
+//#include <D:\Code\StockerBackend\StockerBackend\stockTable.h>
 
 
 stockTable table;
@@ -36,6 +37,7 @@ Java_com_example_cppapp_MainActivity_stringFromJNI(
 extern "C"
 JNIEXPORT jint JNICALL
 Java_com_example_cppapp_MainActivity_importCSV(JNIEnv *env, jobject thiz, jstring CSV) {
+    table.load(jstring2string(env, CSV));
     return static_cast<int>(table.loadFromString(jstring2string(env, CSV)));
 }
 extern "C"
@@ -131,4 +133,43 @@ extern "C"
 JNIEXPORT jint JNICALL
 Java_com_example_cppapp_MainActivity_getStockLocationCount(JNIEnv *env, jobject thiz) {
     return table.getLocationCount();
+}
+
+#include <unistd.h>
+
+FILE* idiocy_fopen_fd(const char* fname, const char * mode) {
+    if (strstr(fname, "/proc/self/fd/") == fname) {
+        int fd = atoi(fname + 14);
+        if (fd != 0) {
+            FILE *fp = fdopen(dup(fd), mode);
+            rewind(fp);
+            return fp;
+        }
+    }
+    return fopen(fname, mode);
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_example_cppapp_MainActivity_importCSVFromFD(JNIEnv *env, jobject thiz, jstring fdpath) {
+    auto path = jstring2string(env, fdpath);
+    FILE* file = idiocy_fopen_fd(path.c_str(), "r");
+    return static_cast<int>(table.loadFromFILE(file));
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_example_cppapp_MainActivity_reimportCSVFromFD(JNIEnv *env, jobject thiz, jstring fdpath) {
+    auto path = jstring2string(env, fdpath);
+    FILE* file = idiocy_fopen_fd(path.c_str(), "r");
+    return static_cast<int>(table.reuseFromFILE(file));
+}
+
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_example_cppapp_MainActivity_exportCSVFromFD(JNIEnv *env, jobject thiz, jstring fdpath, jboolean min) {
+    auto path = jstring2string(env, fdpath);
+    FILE* file = idiocy_fopen_fd(path.c_str(), "w");
+    return static_cast<int>(table.exportToCSV(file));
 }

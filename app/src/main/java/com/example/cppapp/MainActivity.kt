@@ -117,6 +117,7 @@ object PathUtil {
         return "com.android.providers.media.documents" == uri.authority
     }
 }
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
@@ -162,11 +163,10 @@ class MainActivity : AppCompatActivity() {
             uri: Uri? ->
         if (uri != null)
         {
-            val stringBuilder = StringBuilder()
-            var data : String = contentResolver.openInputStream(uri)?.bufferedReader().use {
-                it?.readText()
-            }!!
-            var res = importCSV(data)
+            var f = contentResolver.openFile(uri, "r", null)
+
+            var res = importCSVFromFD("/proc/self/fd/" + f!!.fd.toString())
+
             if (res != 0)
             {
                 findViewById<TextView>(R.id.Main_FileOutput).text = getImportError(res)
@@ -180,17 +180,9 @@ class MainActivity : AppCompatActivity() {
     {
             uri: Uri? ->
         if (uri != null) {
-            val stringBuilder = StringBuilder()
-            contentResolver.openInputStream(uri)?.use { inputStream ->
-                BufferedReader(InputStreamReader(inputStream)).use { reader ->
-                    var line: String? = reader.readLine()
-                    while (line != null) {
-                        stringBuilder.append(line)
-                        line = reader.readLine()
-                    }
-                }
-            }
-            var res = reimportCSV(stringBuilder.toString())
+            var f = contentResolver.openFile(uri, "r", null)
+            var res = reimportCSVFromFD("/proc/self/fd/" + f!!.fd.toString())
+
             if (res != 0)
             {
                 findViewById<TextView>(R.id.Main_FileOutput).text = getImportError(res)
@@ -217,9 +209,8 @@ class MainActivity : AppCompatActivity() {
             uri: Uri? ->
         if (uri != null)
         {
-            val ext = Environment.getExternalStorageDirectory()
-            val str = PathUtil.getPath(this, uri).toString()
-            var res = exportCSV(str, false)
+            var f = contentResolver.openFile(uri, "w+", null)
+            var res = exportCSVFromFD("/proc/self/fd/" + f!!.fd.toString())
         }
     }
 
@@ -324,9 +315,12 @@ class MainActivity : AppCompatActivity() {
      */
     external fun getImportError(ec: Int): String
     private external fun importCSV(CSV: String): Int
+    private external fun importCSVFromFD(FD: String): Int
     private external fun reimportCSV(CSV: String): Int
+    private external fun reimportCSVFromFD(FD: String): Int
     external fun addLocation(): Void
     private external fun exportCSV(CSV: String, minimal: Boolean): Void
+    private external fun exportCSVFromFD(FD: String, minimal: Boolean): Void
     private external fun setStockLocation(location: String): Void
     private external fun getStockLocation(): String
     private external fun hasStockLocation(): Boolean
