@@ -210,7 +210,7 @@ class MainActivity : AppCompatActivity() {
         if (uri != null)
         {
             var f = contentResolver.openFile(uri, "w+", null)
-            var res = exportCSVFromFD("/proc/self/fd/" + f!!.fd.toString())
+            var res = exportCSVFromFD("/proc/self/fd/" + f!!.fd.toString(), false)
         }
     }
 

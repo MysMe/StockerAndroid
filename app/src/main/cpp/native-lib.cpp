@@ -37,13 +37,14 @@ Java_com_example_cppapp_MainActivity_stringFromJNI(
 extern "C"
 JNIEXPORT jint JNICALL
 Java_com_example_cppapp_MainActivity_importCSV(JNIEnv *env, jobject thiz, jstring CSV) {
-    table.load(jstring2string(env, CSV));
+    table.loadFromString(jstring2string(env, CSV));
     return static_cast<int>(table.loadFromString(jstring2string(env, CSV)));
 }
 extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_example_cppapp_MainActivity_addLocation(JNIEnv *env, jobject thiz) {
     // TODO: implement setLocation()
+    return nullptr;
 }
 extern "C"
 JNIEXPORT jintArray JNICALL
@@ -171,5 +172,5 @@ JNIEXPORT jint JNICALL
 Java_com_example_cppapp_MainActivity_exportCSVFromFD(JNIEnv *env, jobject thiz, jstring fdpath, jboolean min) {
     auto path = jstring2string(env, fdpath);
     FILE* file = idiocy_fopen_fd(path.c_str(), "w");
-    return static_cast<int>(table.exportToCSV(file));
+    return static_cast<int>(table.exportToCSV(file, min));
 }
