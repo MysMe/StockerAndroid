@@ -4,12 +4,9 @@ import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.AlarmClock
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
-import org.w3c.dom.Text
-import java.util.Objects.isNull
 
 class AlterStockActivity : AppCompatActivity() {
 
@@ -27,8 +24,8 @@ class AlterStockActivity : AppCompatActivity() {
         val stockSize = intent.getStringExtra("com.example.cppapp.STOCKSIZE")
         stockID = intent.getStringExtra("com.example.cppapp.STOCKID")!!.toInt()
 
-        findViewById<TextView>(R.id.Alter_StockName).text = "Product Name: " + stockName
-        findViewById<TextView>(R.id.Alter_StockSize).text = "Product Size: " + stockSize
+        findViewById<TextView>(R.id.Alter_StockName).text = "Product Name: $stockName"
+        findViewById<TextView>(R.id.Alter_StockSize).text = "Product Size: $stockSize"
         findViewById<TextView>(R.id.Alter_CurrentStock).text = "Current Count: " + getStockCount(stockID).toString()
         findViewById<TextView>(R.id.Alter_Location).text = "Current Location: " + getStockLocation()
     }
@@ -55,7 +52,7 @@ class AlterStockActivity : AppCompatActivity() {
 
     fun backToSearch(view: View) {
         val intent = Intent(this, MainActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         startActivity(intent)
     }
 }

@@ -3,33 +3,23 @@ package com.example.cppapp
 import android.content.Intent
 import android.os.Bundle
 import android.provider.AlarmClock
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.cppapp.databinding.ActivitySearchResultBinding
-import androidx.core.content.ContextCompat.startActivity
 
 class SearchResultActivity : AppCompatActivity() {
-
-    private lateinit var binding: ActivitySearchResultBinding
-
 
     private external fun searchStock(searchTerm: String): IntArray
     private external fun getStockName(index: Int): String
     private external fun getStockSize(index: Int): String
 
-    data class ItemsViewModel(val name: String, val size: String, val idx: Int) {
-    }
+    data class ItemsViewModel(val name: String, val size: String, val idx: Int)
 
     class CustomAdapter(private val mList: List<ItemsViewModel>,
-                        private val container: RecyclerView,
                         private val parent: SearchResultActivity) : RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
 
         // create new views
@@ -100,7 +90,7 @@ class SearchResultActivity : AppCompatActivity() {
         }
 
         // This will pass the ArrayList to our Adapter
-        val adapter = CustomAdapter(data, recyclerview, this)
+        val adapter = CustomAdapter(data, this)
 
         // Setting the Adapter with the recyclerview
         recyclerview.adapter = adapter

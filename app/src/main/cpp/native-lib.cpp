@@ -1,7 +1,7 @@
 #include <jni.h>
 #include <string>
-#include <C:\Users\Adam\source\repos\StockerBackend\include\stockTable.h>
-//#include <D:\Code\StockerBackend\StockerBackend\stockTable.h>
+//#include <C:\Users\Adam\source\repos\StockerBackend\include\stockTable.h>
+#include <D:\Code\StockerBackend\include\stockTable.h>
 
 
 stockTable table;
@@ -155,7 +155,9 @@ JNIEXPORT jint JNICALL
 Java_com_example_cppapp_MainActivity_importCSVFromFD(JNIEnv *env, jobject thiz, jstring fdpath) {
     auto path = jstring2string(env, fdpath);
     FILE* file = idiocy_fopen_fd(path.c_str(), "r");
-    return static_cast<int>(table.loadFromFILE(file));
+    auto ret = static_cast<int>(table.loadFromFILE(file));
+    fclose(file);
+    return ret;
 }
 
 extern "C"
@@ -163,7 +165,9 @@ JNIEXPORT jint JNICALL
 Java_com_example_cppapp_MainActivity_reimportCSVFromFD(JNIEnv *env, jobject thiz, jstring fdpath) {
     auto path = jstring2string(env, fdpath);
     FILE* file = idiocy_fopen_fd(path.c_str(), "r");
-    return static_cast<int>(table.reuseFromFILE(file));
+    auto ret = static_cast<int>(table.reuseFromFILE(file));
+    fclose(file);
+    return ret;
 }
 
 
@@ -172,5 +176,13 @@ JNIEXPORT jint JNICALL
 Java_com_example_cppapp_MainActivity_exportCSVFromFD(JNIEnv *env, jobject thiz, jstring fdpath, jboolean min) {
     auto path = jstring2string(env, fdpath);
     FILE* file = idiocy_fopen_fd(path.c_str(), "w");
-    return static_cast<int>(table.exportToCSV(file, min));
+    int ret = static_cast<int>(table.exportToCSV(file, min));
+    fflush(file);
+    fclose(file);
+    return ret;
+}
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_example_cppapp_MainActivity_tableHasContent(JNIEnv *env, jobject thiz) {
+    return table.hasLocation();
 }

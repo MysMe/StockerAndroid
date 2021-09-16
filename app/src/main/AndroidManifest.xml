@@ -22,10 +22,6 @@
             android:parentActivityName=".MainActivity"
             android:theme="@style/Theme.CPPApp.NoActionBar" />
         <activity
-            android:name=".DisplayMessageActivity"
-            android:exported="true"
-            android:parentActivityName=".MainActivity" />
-        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
