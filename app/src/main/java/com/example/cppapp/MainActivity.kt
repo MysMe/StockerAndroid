@@ -11,6 +11,7 @@ import com.example.cppapp.databinding.ActivityMainBinding
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.view.KeyEvent
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 
@@ -111,16 +112,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun export(uri: Uri, min: Boolean)
+    {
+        val f = contentResolver.openFile(uri, "wt", null)
+        val path : String = "/proc/self/fd/" + f!!.fd.toString()
+        exportCSVFromFD(path, min)
+        f.close()
+        findViewById<TextView>(R.id.Main_FileOutput).text = "File saved successfully!"
+    }
+
     private val getFileForExport = registerForActivityResult(ActivityResultContracts.CreateDocument())
     {
             uri: Uri? ->
         if (uri != null)
         {
-            val f = contentResolver.openFile(uri, "wt", null)
-            val path : String = "/proc/self/fd/" + f!!.fd.toString()
-            exportCSVFromFD(path, false)
-            f.close()
-            findViewById<TextView>(R.id.Main_FileOutput).text = "File saved successfully!"
+            export(uri, false)
         }
     }
 
@@ -129,11 +135,7 @@ class MainActivity : AppCompatActivity() {
             uri: Uri? ->
         if (uri != null)
         {
-            val f = contentResolver.openFile(uri, "wt", null)
-            val path : String = "/proc/self/fd/" + f!!.fd.toString()
-            exportCSVFromFD(path, true)
-            f.close()
-            findViewById<TextView>(R.id.Main_FileOutput).text = "File saved successfully!"
+            export(uri, true)
         }
     }
 
@@ -196,7 +198,6 @@ class MainActivity : AppCompatActivity() {
         spinnerAdapter.notifyDataSetChanged()
     }
 
-    /** Called when the user taps the Send button */
     fun search(view: View) {
         val editText = findViewById<EditText>(R.id.Main_SearchInput)
         val message = editText.text.toString()
@@ -229,16 +230,14 @@ class MainActivity : AppCompatActivity() {
      * which is packaged with this application.
      */
     private external fun getImportError(ec: Int): String
-    private external fun importCSV(CSV: String): Int
     private external fun importCSVFromFD(FD: String): Int
-    private external fun reimportCSV(CSV: String): Int
     private external fun reimportCSVFromFD(FD: String): Int
-    external fun addLocation(): Void
-    private external fun exportCSV(CSV: String, minimal: Boolean): Void
     private external fun exportCSVFromFD(FD: String, minimal: Boolean): Int
+
     private external fun setStockLocation(location: String): Void
     private external fun getStockLocation(): String
     private external fun hasStockLocation(): Boolean
+
     private external fun getStockLocationFromID(id: Int): String
     private external fun getStockLocationCount(): Int
     private external fun tableHasContent() : Boolean

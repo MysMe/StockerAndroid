@@ -52,6 +52,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
+        android:autoText="false"
         android:ems="10"
         android:inputType="numberSigned|text"
         app:layout_constraintStart_toStartOf="parent"
@@ -59,7 +60,7 @@
 
     <Button
         android:id="@+id/Alter_Done"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
@@ -73,7 +74,7 @@
 
     <Button
         android:id="@+id/Alter_Back"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
@@ -86,7 +87,7 @@
 
     <Button
         android:id="@+id/Alter_Cancel"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
