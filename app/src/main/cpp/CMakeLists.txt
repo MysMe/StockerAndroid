@@ -14,14 +14,24 @@ project("cppapp")
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
+set(PROJECT_NAME cppapp)
+
+set (CMAKE_CXX_STANDARD 17)
+
 add_library( # Sets the name of the library.
-        cppapp
+        ${PROJECT_NAME}
 
         # Sets the library as a shared library.
         SHARED
 
         # Provides a relative path to your source file(s).
-        native-lib.cpp)
+        stockTable.cpp lookupTable.cpp)
+
+target_include_directories(${PROJECT_NAME} PUBLIC StockerNatives/include)
+target_include_directories(${PROJECT_NAME} PUBLIC StockerNatives/interface)
+add_subdirectory(StockerNatives/src)
+add_subdirectory(StockerNatives/include)
+add_subdirectory(StockerNatives/interface)
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -41,7 +51,7 @@ find_library( # Sets the name of the path variable.
 # build script, prebuilt third-party libraries, or system libraries.
 
 target_link_libraries( # Specifies the target library.
-        cppapp
+        ${PROJECT_NAME}
 
         # Links the target library to the log library
         # included in the NDK.

@@ -13,10 +13,6 @@ import android.widget.TextView
 
 class AlterStockActivity : AppCompatActivity() {
 
-    private external fun getStockCount(index: Int): Float
-    private external fun alterStock(index: Int, delta: Float): Void
-    private external fun getStockLocation(): String
-
     private var stockID : Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,8 +25,8 @@ class AlterStockActivity : AppCompatActivity() {
 
         findViewById<TextView>(R.id.Alter_StockName).text = "Product Name: $stockName"
         findViewById<TextView>(R.id.Alter_StockSize).text = "Product Size: $stockSize"
-        findViewById<TextView>(R.id.Alter_CurrentStock).text = "Current Count: " + getStockCount(stockID).toString()
-        findViewById<TextView>(R.id.Alter_Location).text = "Current Location: " + getStockLocation()
+        findViewById<TextView>(R.id.Alter_CurrentStock).text = "Current Count: " + table.getStockCount(stockID).toString()
+        findViewById<TextView>(R.id.Alter_Location).text = "Current Location: " + table.getCurrentLocation()
     }
 
     fun confirmAlter(view: View) {
@@ -42,7 +38,7 @@ class AlterStockActivity : AppCompatActivity() {
             return
         }
 
-        alterStock(stockID, delta)
+        table.alter(stockID, delta)
 
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP

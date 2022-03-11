@@ -12,11 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 class SearchResultActivity : AppCompatActivity() {
-
-    private external fun searchStock(searchTerm: String): IntArray
-    private external fun getStockName(index: Int): String
-    private external fun getStockSize(index: Int): String
-
     data class ItemsViewModel(val name: String, val size: String, val idx: Int)
 
     class CustomAdapter(private val mList: List<ItemsViewModel>,
@@ -72,6 +67,8 @@ class SearchResultActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search_result)
 
+
+
         // getting the recyclerview by its id
         val recyclerview = findViewById<RecyclerView>(R.id.StockEntryList)
 
@@ -83,10 +80,10 @@ class SearchResultActivity : AppCompatActivity() {
 
         val searchTerm: String = intent.getStringExtra(AlarmClock.EXTRA_MESSAGE)!!
 
-        val searchResult = searchStock(searchTerm)
+        val searchResult = lookups.search(searchTerm)
 
-        for (i in searchResult) {
-            data.add(ItemsViewModel(getStockName(i), getStockSize(i), i))
+        for (i in 0..searchResult.size()) {
+            data.add(ItemsViewModel(table.getStockName(i), table.getStockSize(i), i))
         }
 
         // This will pass the ArrayList to our Adapter

@@ -11,7 +11,6 @@ import com.example.cppapp.databinding.ActivityMainBinding
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
-import android.view.KeyEvent
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 
@@ -19,6 +18,10 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.size
 import android.widget.AdapterView
 import androidx.annotation.RequiresApi
+
+var table: StockTable = StockTable()
+var lookups: LookupTable = LookupTable(table)
+
 
 @RequiresApi(Build.VERSION_CODES.Q)
 class MainActivity : AppCompatActivity() {
@@ -68,14 +71,15 @@ class MainActivity : AppCompatActivity() {
         if (uri != null)
         {
             val f = contentResolver.openFile(uri, "r", null)!!.fd.toString()
-            val res = importCSVFromFD("/proc/self/fd/$f")
+            val res = table.importFromFile("/proc/self/fd/$f")
 
             if (res != 0)
             {
-                findViewById<TextView>(R.id.Main_FileOutput).text = getImportError(res)
+                findViewById<TextView>(R.id.Main_FileOutput).text = table.getImportError(res)
             }
             else
             {
+                lookups = LookupTable(table)
                 findViewById<TextView>(R.id.Main_FileOutput).text = "File loaded successfully!"
             }
             setSearch(res == 0)
@@ -88,24 +92,25 @@ class MainActivity : AppCompatActivity() {
             uri: Uri? ->
         if (uri != null) {
             val f = contentResolver.openFile(uri, "r", null)!!.fd.toString()
-            val res = reimportCSVFromFD("/proc/self/fd/$f")
+            val res = table.reuseFromFile("/proc/self/fd/$f")
 
             if (res != 0)
             {
-                findViewById<TextView>(R.id.Main_FileOutput).text = getImportError(res)
+                findViewById<TextView>(R.id.Main_FileOutput).text = table.getImportError(res)
             }
             else
             {
+                lookups = LookupTable(table)
                 findViewById<TextView>(R.id.Main_FileOutput).text = "File loaded successfully!"
 
                 spinnerAdapter.clear()
-                for (i in 0 until getStockLocationCount())
+                for (i in 0 until table.getLocationCount())
                 {
-                    spinnerAdapter.add(getStockLocationFromID(i))
+                    spinnerAdapter.add(table.getLocationName(i))
                 }
                 spinnerAdapter.notifyDataSetChanged()
                 val item = spinnerAdapter.getItem(0)
-                setStockLocation(item.toString())
+                table.setLocation(item.toString())
             }
             setSearch(res == 0)
             source = uri
@@ -116,7 +121,7 @@ class MainActivity : AppCompatActivity() {
     {
         val f = contentResolver.openFile(uri, "wt", null)
         val path : String = "/proc/self/fd/" + f!!.fd.toString()
-        exportCSVFromFD(path, min)
+        table.exportToFile(path, min)
         f.close()
         findViewById<TextView>(R.id.Main_FileOutput).text = "File saved successfully!"
     }
@@ -145,7 +150,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setSearch(tableHasContent())
+        setSearch(false)
 
         if (!checkPermission())
             requestPermission()
@@ -170,7 +175,7 @@ class MainActivity : AppCompatActivity() {
             getFileForMinExport.launch("out.csv")
         }
 
-        var spinner = findViewById<Spinner>(R.id.Main_LocationSpinner)
+        val spinner = findViewById<Spinner>(R.id.Main_LocationSpinner)
 
         spinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
@@ -181,8 +186,8 @@ class MainActivity : AppCompatActivity() {
                 id: Long
             ) {
                 val item = parent.getItemAtPosition(pos)
-                if (hasStockLocation())
-                    setStockLocation(item.toString())
+                if (table.getLocationCount() != 0)
+                    table.setLocation(item.toString())
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -193,7 +198,7 @@ class MainActivity : AppCompatActivity() {
             ArrayAdapter<String>(this, android.R.layout.simple_spinner_item)
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = spinnerAdapter
-        spinnerAdapter.add(getStockLocation())
+        spinnerAdapter.add(table.getCurrentLocation())
         spinner.setSelection(spinner.size - 1)
         spinnerAdapter.notifyDataSetChanged()
     }
@@ -212,35 +217,18 @@ class MainActivity : AppCompatActivity() {
         val locationSrc = findViewById<EditText>(R.id.Main_LocationInput)
         val location = locationSrc.text.toString()
         findViewById<TextView>(R.id.Main_LocationDescriptor).text = location
-        if (!hasStockLocation()) {
+        if (table.getLocationCount() != 0) {
             spinnerAdapter.remove(
                 spinnerAdapter.getItem(0)
             )
         }
 
-        setStockLocation(location)
+        table.setLocation(location)
 
         spinnerAdapter.add(location)
         findViewById<Spinner>(R.id.Main_LocationSpinner).setSelection(spinnerAdapter.count)
         spinnerAdapter.notifyDataSetChanged()
     }
-
-    /**
-     * A native method that is implemented by the 'cppapp' native library,
-     * which is packaged with this application.
-     */
-    private external fun getImportError(ec: Int): String
-    private external fun importCSVFromFD(FD: String): Int
-    private external fun reimportCSVFromFD(FD: String): Int
-    private external fun exportCSVFromFD(FD: String, minimal: Boolean): Int
-
-    private external fun setStockLocation(location: String): Void
-    private external fun getStockLocation(): String
-    private external fun hasStockLocation(): Boolean
-
-    private external fun getStockLocationFromID(id: Int): String
-    private external fun getStockLocationCount(): Int
-    private external fun tableHasContent() : Boolean
 
     companion object {
         // Used to load the 'cppapp' library on application startup.
