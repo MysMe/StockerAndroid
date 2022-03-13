@@ -1,7 +1,8 @@
 #ifndef CPPAPP_EXPORT_H
 #define CPPAPP_EXPORT_H
 #define EXPORT(X) extern "C" JNIEXPORT X JNICALL
-
+#include <string>
+#include <jni.h>
 inline std::string jstring2string(JNIEnv *env, jstring jStr) {
     if (!jStr)
         return "";

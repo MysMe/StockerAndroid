@@ -16,15 +16,17 @@ class StockTable() {
 
     private external fun NativeSetLocation(ptr: pointer, location: String)
     private external fun NativeLocationCount(ptr: pointer): Int
-    private external fun NativeGetCurrentLocation(ptr: pointer): String
+    private external fun NativeGetCurrentLocation(ptr: pointer): Int
     private external fun NativeGetLocationName(ptr: pointer, index: Int): String
 
     private external fun NativeGetStockName(ptr: pointer, index: Int): String
     private external fun NativeGetStockSize(ptr: pointer, index: Int): String
     private external fun NativeAlterStock(ptr: pointer, index: Int, delta: Float)
     private external fun NativeGetStockCount(ptr: pointer, index: Int): Float
+    private external fun NativeGetStockCountAt(ptr: pointer, index: Int, location: Int): Float
 
     private external fun NativeExportToFile(ptr: pointer, source: String, min: Boolean)
+    private external fun NativeExportToString(ptr: pointer, min: Boolean): String
 
     init {
         ptr = NativeNew()
@@ -56,13 +58,15 @@ class StockTable() {
     }
 
     fun getLocationCount(): Int {return NativeLocationCount(ptr)}
-    fun getCurrentLocation(): String {return NativeGetCurrentLocation(ptr)}
+    fun getCurrentLocation(): Int {return NativeGetCurrentLocation(ptr)}
     fun getLocationName(index: Int): String {return NativeGetLocationName(ptr, index)}
 
     fun getStockName(index: Int): String {return NativeGetStockName(ptr, index)}
     fun getStockSize(index: Int): String {return NativeGetStockSize(ptr, index)}
     fun alter(index: Int, delta: Float) {NativeAlterStock(ptr, index, delta)}
     fun getStockCount(index: Int): Float {return NativeGetStockCount(ptr, index)}
+    fun getStockCountAt(index: Int, location: Int): Float {return NativeGetStockCountAt(ptr, index, location)}
 
     fun exportToFile(source: String, min: Boolean) {NativeExportToFile(ptr, source, min)}
+    fun exportToString(min: Boolean): String {return NativeExportToString(ptr, min)}
 }

@@ -529,11 +529,11 @@ public:
         return ret;
     }
 
-    const std::string& getCurrentLocation() const
+    size_t getCurrentLocation() const
     {
         if (locationIndices.empty())
-            return defaultLocation;
-        return locationIndices[location];
+            return std::numeric_limits<size_t>::max();
+        return location;
     }
 
     const std::string& getLocation(size_t idx) const

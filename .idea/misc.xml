@@ -3,7 +3,8 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Code/Android/CPPApp/app/src/main/res/layout/activity_alter_stock.xml" value="0.67" />
+        <entry key="..\:/Code/Android/CPPApp/app/src/main/res/layout/activity_alter_stock.xml" value="0.9" />
+        <entry key="..\:/Code/Android/CPPApp/app/src/main/res/layout/activity_broadcast.xml" value="0.75" />
         <entry key="..\:/Code/Android/CPPApp/app/src/main/res/layout/activity_display_message.xml" value="0.5" />
         <entry key="..\:/Code/Android/CPPApp/app/src/main/res/layout/activity_main.xml" value="0.5" />
         <entry key="..\:/Code/Android/CPPApp/app/src/main/res/layout/activity_search_result.xml" value="0.2738012508686588" />

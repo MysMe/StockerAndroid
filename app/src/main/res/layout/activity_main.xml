@@ -31,17 +31,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Main_SearchButton" />
 
-    <TextView
-        android:id="@+id/Main_FileOutput"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="No file loaded"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.32"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <EditText
         android:id="@+id/Main_SearchInput"
         android:layout_width="0dp"
@@ -103,10 +92,10 @@
         android:id="@+id/Main_ExportButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
         android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
         android:text="Export"
-        app:layout_constraintStart_toEndOf="@+id/Main_ImportButton"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Main_LocationSpinner" />
 
     <Button
@@ -123,10 +112,32 @@
         android:id="@+id/Main_MinexportButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
         android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
         android:text="Export Minimum"
-        app:layout_constraintStart_toEndOf="@+id/Main_ReimportButton"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Main_ExportButton" />
+
+    <Button
+        android:id="@+id/Main_BroadcastButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:onClick="broadcastAll"
+        android:text="Broadcast"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Main_MinexportButton" />
+
+    <Button
+        android:id="@+id/Main_BroadcastMinimumButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:onClick="broadcastMin"
+        android:text="Broadcast Min"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Main_BroadcastButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

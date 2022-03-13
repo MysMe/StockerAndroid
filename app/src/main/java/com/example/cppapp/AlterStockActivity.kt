@@ -10,6 +10,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 
 class AlterStockActivity : AppCompatActivity() {
 
@@ -25,24 +26,43 @@ class AlterStockActivity : AppCompatActivity() {
 
         findViewById<TextView>(R.id.Alter_StockName).text = "Product Name: $stockName"
         findViewById<TextView>(R.id.Alter_StockSize).text = "Product Size: $stockSize"
-        findViewById<TextView>(R.id.Alter_CurrentStock).text = "Current Count: " + table.getStockCount(stockID).toString()
-        findViewById<TextView>(R.id.Alter_Location).text = "Current Location: " + table.getCurrentLocation()
+        findViewById<TextView>(R.id.Alter_CurrentStock).text = "Current Count Total: " + table.getStockCount(stockID).toString()
+        if (table.getLocationCount() == 0)
+            findViewById<TextView>(R.id.Alter_Location).text = ""
+        else
+            findViewById<TextView>(R.id.Alter_Location).text = "Current Count For " + table.getLocationName(table.getCurrentLocation()) +
+                ": " + table.getStockCountAt(stockID, table.getCurrentLocation())
     }
 
-    fun confirmAlter(view: View) {
+    private fun applyAlter(): Boolean
+    {
         val input = findViewById<EditText>(R.id.Alter_Value)
         val delta = input.text.toString().toFloatOrNull()
         if (delta == null)
         {
             input.setBackgroundColor(Color.RED)
-            return
+            Toast.makeText(getApplicationContext(), "Number required", Toast.LENGTH_LONG).show();
+            return false
         }
 
         table.alter(stockID, delta)
+        return true
+    }
+
+    fun confirmAlter(view: View) {
+        if (!applyAlter())
+            return
 
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         startActivity(intent)
+    }
+
+    fun confirmAndBackToResult(view: View) {
+        if (!applyAlter())
+            return
+
+        finish()
     }
 
     fun backToSearchResult(view: View) {

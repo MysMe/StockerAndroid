@@ -82,8 +82,9 @@ class SearchResultActivity : AppCompatActivity() {
 
         val searchResult = lookups.search(searchTerm)
 
-        for (i in 0..searchResult.size()) {
-            data.add(ItemsViewModel(table.getStockName(i), table.getStockSize(i), i))
+        for (i in 1..searchResult.size()) {
+            val index = searchResult[i - 1];
+            data.add(ItemsViewModel(table.getStockName(index), table.getStockSize(index), index))
         }
 
         // This will pass the ArrayList to our Adapter

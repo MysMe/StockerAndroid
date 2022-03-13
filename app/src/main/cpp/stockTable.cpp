@@ -1,6 +1,3 @@
-#include <jni.h>
-#include <string>
-
 #include "StockerNatives/interface/stockTableInterface.h"
 #include "Export.h"
 #include <jni.h>
@@ -63,10 +60,9 @@ Java_com_example_cppapp_StockTable_NativeLocationCount(JNIEnv*, jobject , jptr p
     return stockTable_getLocationCount(getPtr<stockTable>(ptr));
 }
 extern "C"
-JNIEXPORT jstring JNICALL
-Java_com_example_cppapp_StockTable_NativeGetCurrentLocation(JNIEnv *env, jobject , jptr ptr) {
-    const auto str = getPtr<stockTable>(ptr)->getCurrentLocation();
-    return env->NewStringUTF(str.c_str());
+JNIEXPORT jint JNICALL
+Java_com_example_cppapp_StockTable_NativeGetCurrentLocation(JNIEnv*, jobject , jptr ptr) {
+    return getPtr<stockTable>(ptr)->getCurrentLocation();
 }
 extern "C"
 JNIEXPORT jstring JNICALL
@@ -105,4 +101,17 @@ JNIEXPORT jfloat JNICALL
 Java_com_example_cppapp_StockTable_NativeGetStockCount(JNIEnv*, jobject , jptr ptr,
                                                        jint index) {
     return stockTable_getStockCount(getPtr<stockTable>(ptr), index);
+}
+extern "C"
+JNIEXPORT jfloat JNICALL
+Java_com_example_cppapp_StockTable_NativeGetStockCountAt(JNIEnv*, jobject, jlong ptr,
+                                                         jint index, jint location) {
+    return getPtr<stockTable>(ptr)->get(index).getCount(location);
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_example_cppapp_StockTable_NativeExportToString(JNIEnv *env, jobject, jlong ptr,
+                                                        jboolean min) {
+    const auto str = getPtr<stockTable>(ptr)->exportToString(min);
+    return env->NewStringUTF(str.c_str());
 }

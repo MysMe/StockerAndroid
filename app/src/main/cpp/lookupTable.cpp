@@ -1,6 +1,3 @@
-#include <jni.h>
-#include <string>
-
 #include "StockerNatives/interface/lookupTableInterface.h"
 #include "Export.h"
 #include <jni.h>

@@ -64,11 +64,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
+        android:hapticFeedbackEnabled="true"
         android:onClick="confirmAlter"
-        android:text="Done"
-        app:layout_constraintEnd_toStartOf="@+id/Alter_Back"
-        app:layout_constraintHorizontal_bias="0.0"
+        android:text="Confirm+Done"
+        android:textSize="10sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Alter_Value" />
 
@@ -76,25 +75,50 @@
         android:id="@+id/Alter_Back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:onClick="backToSearch"
-        android:text="Back"
-        app:layout_constraintEnd_toStartOf="@+id/Alter_Cancel"
-        app:layout_constraintStart_toEndOf="@+id/Alter_Done"
+        android:text="Cancel+Done"
+        android:textSize="10sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Alter_Value" />
 
     <Button
         android:id="@+id/Alter_Cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
         android:onClick="backToSearchResult"
-        android:text="Cancel"
+        android:text="Cancel+Repeat"
+        android:textSize="10sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/Alter_Back"
-        app:layout_constraintTop_toBottomOf="@+id/Alter_Value" />
+        app:layout_constraintTop_toBottomOf="@+id/Alter_Back" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:hapticFeedbackEnabled="true"
+        android:onClick="confirmAndBackToResult"
+        android:text="Confirm+Repeat"
+        android:textSize="10sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Alter_Done" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="20dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="20dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

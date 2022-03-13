@@ -25,13 +25,22 @@ add_library( # Sets the name of the library.
         SHARED
 
         # Provides a relative path to your source file(s).
-        stockTable.cpp lookupTable.cpp)
+        stockTable.cpp lookupTable.cpp TCPSender.cpp UDPSender.cpp UDPMessage.cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC StockerNatives/include)
 target_include_directories(${PROJECT_NAME} PUBLIC StockerNatives/interface)
 add_subdirectory(StockerNatives/src)
 add_subdirectory(StockerNatives/include)
 add_subdirectory(StockerNatives/interface)
+
+
+target_include_directories(${PROJECT_NAME} PUBLIC LanCon/include)
+target_include_directories(${PROJECT_NAME} PUBLIC LanCon/interface)
+add_subdirectory(LanCon/include)
+add_subdirectory(LanCon/interface)
+
+target_include_directories(${PROJECT_NAME} PRIVATE asio/include)
+add_subdirectory(asio)
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by

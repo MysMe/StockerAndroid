@@ -2,8 +2,6 @@
 #include "Export.h"
 #include "../include/stockTable.h"
 
-class stockTable;
-
 STOCKEREXPORT stockTable* stockTable_new()
 {
     return new stockTable;
@@ -78,6 +76,11 @@ STOCKEREXPORT const char* stockTable_getStockSize(stockTable* obj, unsigned int 
 STOCKEREXPORT float stockTable_getStockCount(stockTable* obj, unsigned int index)
 {
     return obj->get(index).sum();
+}
+
+STOCKEREXPORT unsigned int stockTable_getCurrentLocation(stockTable* obj)
+{
+    return obj->getCurrentLocation();
 }
 
 STOCKEREXPORT unsigned int stockTable_getLocationCount(stockTable* obj)
