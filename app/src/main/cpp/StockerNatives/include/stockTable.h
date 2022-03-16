@@ -8,6 +8,7 @@
 #include <string>
 #include <filesystem>
 #include <sstream>
+#include <type_traits>
 
 #include "lookupTable.h"
 
@@ -63,21 +64,21 @@ struct stockElement
 class stockTable
 {
 
-    class stockSource
+    class inputStockSource
     {
     public:
-        virtual stockSource& getLine(std::string& out) = 0;
+        virtual inputStockSource& getLine(std::string& out) = 0;
         virtual operator bool() const = 0;
     };
 
-    class stockFStream final : public stockSource
+    class inputStream final : public inputStockSource
     {
         std::reference_wrapper<std::istream> stream;
     public:
 
-        stockFStream(std::istream& source) : stream(source) {}
+        inputStream(std::istream& source) : stream(source) {}
 
-        stockSource& getLine(std::string& out) final
+        inputStockSource& getLine(std::string& out) final
         {
             std::getline(stream.get(), out);
             return *this;
@@ -88,15 +89,15 @@ class stockTable
         }
     };
 
-    class stockFILE final : public stockSource
+    class inputFILE final : public inputStockSource
     {
         FILE* ptr;
     public:
 
-        stockFILE() = delete;
-        stockFILE(FILE* src) : ptr(src) {}
+        inputFILE() = delete;
+        inputFILE(FILE* src) : ptr(src) {}
 
-        stockSource& getLine(std::string& out) final
+        inputStockSource& getLine(std::string& out) final
         {
             out.clear();
             if (std::ferror(ptr) || std::feof(ptr))
@@ -110,6 +111,70 @@ class stockTable
         operator bool() const final
         {
             return std::ferror(ptr) == 0 && std::feof(ptr) == 0;
+        }
+    };
+
+    class outputStockSource
+    {
+    public:
+        virtual outputStockSource& operator<<(const char v) = 0;
+        virtual outputStockSource& operator<<(const std::string& v) = 0;
+        template <class T>
+        std::enable_if_t<std::is_arithmetic_v<T>, outputStockSource&> operator<<(T v)
+        {
+            *this << std::to_string(v);
+            return *this;
+        }
+        virtual operator bool() const = 0;
+    };
+
+    class outputStream final : public outputStockSource
+    {
+        std::reference_wrapper<std::ostream> stream;
+    public:
+
+        outputStream(std::ostream& source) : stream(source) {}
+
+        outputStockSource& operator<<(const char v) final
+        {
+            stream.get() << v;
+            return *this;
+        }
+
+        outputStockSource& operator<<(const std::string& v) final
+        {
+            stream.get() << v;
+            return *this;
+        }
+
+        operator bool() const final
+        {
+            return stream.get().operator bool();
+        }
+    };
+
+    class outputFILE final : public outputStockSource
+    {
+        FILE* file = nullptr;
+    public:
+
+        outputFILE(FILE* source) : file(source) {}
+
+        outputStockSource& operator<<(const char v) final
+        {
+            std::fputc(v, file);
+            return *this;
+        }
+
+        outputStockSource& operator<<(const std::string& v) final
+        {
+            std::fputs(v.c_str(), file);
+            return *this;
+        }
+
+        operator bool() const final
+        {
+            return std::ferror(file) == 0 && std::feof(file) == 0;
         }
     };
 
@@ -161,6 +226,14 @@ public:
     };
 private:
 
+    static void clearQuotes(std::string& in)
+    {
+        if (in.size() < 2 || in.front() != '\"' || in.back() != '\"')
+            return;
+        in.pop_back();
+        in.erase(in.begin());
+    }
+
     static auto getField(std::string line, size_t off) -> std::pair<std::string, size_t>
     {
         bool isQuoted = false;
@@ -170,14 +243,17 @@ private:
                 isQuoted = !isQuoted;
             if (line[i] == ',' && !isQuoted)
             {
-                return { line.substr(off, i - off), i == line.size() - 1 ? std::string::npos : i + 1 };
+                std::string ret = line.substr(off, i - off);
+                clearQuotes(ret);
+                return { ret, i == line.size() - 1 ? std::string::npos : i + 1 };
             }
         }
-
-        return { line.substr(off, line.size() - off), std::string::npos };
+        std::string ret = line.substr(off, line.size() - off);
+        clearQuotes(ret);
+        return { ret, std::string::npos };
     };
 
-    fileError parseFromStream(stockSource& stream)
+    fileError parseFromStream(inputStockSource& stream)
     {
         reset();
         {
@@ -188,16 +264,16 @@ private:
                 line.pop_back();
 
             constexpr std::array<char, 3> BOM{
-                static_cast<char>(0xEF), static_cast<char>(0xBB), static_cast<char>(0xBF) };
+                    static_cast<char>(0xEF), static_cast<char>(0xBB), static_cast<char>(0xBF) };
 
             //Verify fields against template
             static const std::array<std::string, 4> layout =
-            {
-                "Cost_Center",
-                "Name",
-                "Item_Size",
-                "BinNumber"
-            };
+                    {
+                            "Cost_Center",
+                            "Name",
+                            "Item_Size",
+                            "BinNumber"
+                    };
             size_t pos = 0;
             for (const auto i : BOM)
             {
@@ -239,7 +315,7 @@ private:
         return fileError::none;
     }
 
-    fileError reuseFromStream(stockSource& stream)
+    fileError reuseFromStream(inputStockSource& stream)
     {
         reset();
         {
@@ -250,12 +326,13 @@ private:
                 line.pop_back();
 
             //Verify fields against template
-            static const std::array<std::string, 3> layout =
-            {
-                "Name",
-                "Size",
-                "Quantity"
-            };
+            static const std::array<std::string, 4> layout =
+                    {
+                            "Name",
+                            "Size",
+                            "Quantity",
+                            "Total"
+                    };
             size_t pos = 0;
 
             for (const auto& i : layout)
@@ -310,6 +387,28 @@ private:
         return fileError::none;
     }
 
+    void exportToStream(outputStockSource& stream, const bool skipEmpty) const
+    {
+        stream << "Name,Size,Quantity,Total";
+        for (const auto& i : locationIndices)
+            stream << ',' << '\"' << i << '\"';
+        stream << '\n';
+
+        for (const auto& i : elements)
+        {
+            if (skipEmpty && i.sum() == 0)
+                continue;
+
+            stream << '\"' << i.name << '\"' << ',';
+            stream << '\"' << i.size << '\"' << ',';
+            stream << i.sum();
+
+            for (size_t u = 0; u < locationIndices.size(); u++)
+                stream << ',' << i.getCount(u);
+            stream << '\n';
+        }
+    }
+
     inline static const std::string defaultLocation = "Global";
 
 public:
@@ -319,7 +418,7 @@ public:
         std::ifstream stream(source, std::ios::in);
         stream.seekg(0, std::ios::beg);
 
-        stockFStream sfs(stream);
+        inputStream sfs(stream);
 
         auto v = parseFromStream(sfs);
         if (v != fileError::none)
@@ -337,7 +436,7 @@ public:
         stream.seekg(0, std::ios::beg);
 
 
-        stockFStream sfs(stream);
+        inputStream sfs(stream);
 
         auto v = reuseFromStream(sfs);
         if (v != fileError::none)
@@ -349,7 +448,7 @@ public:
     fileError loadFromString(const std::string& source)
     {
         std::stringstream ss(source);
-        stockFStream sfs(ss);
+        inputStream sfs(ss);
         parseFromStream(sfs);
         return fileError::none;
     }
@@ -357,7 +456,7 @@ public:
     fileError reuseFromString(const std::string& source)
     {
         std::stringstream ss(source);
-        stockFStream sfs(ss);
+        inputStream sfs(ss);
         reuseFromStream(sfs);
         return fileError::none;
     }
@@ -366,7 +465,7 @@ public:
     {
         if (source == nullptr)
             return fileError::unable_to_open;
-        stockFILE sfs(source);
+        inputFILE sfs(source);
 
         auto v = parseFromStream(sfs);
         if (v != fileError::none)
@@ -379,7 +478,7 @@ public:
     {
         if (source == nullptr)
             return fileError::unable_to_open;
-        stockFILE sfs(source);
+        inputFILE sfs(source);
 
         auto v = reuseFromStream(sfs);
         if (v != fileError::none)
@@ -438,31 +537,10 @@ public:
         if (!out.is_open())
             return false;
 
-        out << "Name,Size,Quantity";
-        for (const auto& i : locationIndices)
-            out << ',' << i;
-        out << '\n';
+        outputStream stream{ out };
 
-        for (const auto& i : elements)
-        {
-            if (skipEmpty && i.sum() == 0)
-                continue;
+        exportToStream(stream, skipEmpty);
 
-            out << i.name << ',';
-            out << i.size << ',';
-            out << std::to_string(i.sum());
-
-            if (locationIndices.empty())
-            {
-                out << ',' << i.sum();
-            }
-            else
-                {
-                for (size_t u = 0; u < locationIndices.size(); u++)
-                    out << ',' << i.getCount(u);
-            }
-            out << '\n';
-        }
         return true;
     }
 
@@ -470,36 +548,8 @@ public:
     {
         if (file == nullptr)
             return false;
-
-        std::fputs("Name,Size,Quantity", file);
-        for (const auto &i : locationIndices)
-        {
-            std::fputc(',', file);
-            std::fputs(i.c_str(), file);
-        }
-        std::fputc('\n', file);
-
-        for (const auto& i : elements)
-        {
-            if (skipEmpty && i.sum() == 0)
-                continue;
-
-            std::fputs(i.name.c_str(), file);
-            std::fputc(',', file);
-            std::fputs(i.size.c_str(), file);
-            std::fputc(',', file);
-            std::fputs(std::to_string(i.sum()).c_str(), file);
-
-            if (!locationIndices.empty())
-            {
-                for (size_t u = 0; u < locationIndices.size(); u++)
-                {
-                    std::fputc(',', file);
-                    std::fputs(std::to_string(i.getCount(u)).c_str(), file);
-                }
-            }
-            std::fputc('\n', file);
-        }
+        outputFILE stream{ file };
+        exportToStream(stream, skipEmpty);
         return true;
     }
 
@@ -507,26 +557,10 @@ public:
 
     std::string exportToString(bool skipEmpty) const
     {
-        std::string ret;
-        ret += "Name,Size,Quantity";
-        for (const auto& i : locationIndices)
-            ret += (',' + i);
-        ret += '\n';
-
-        for (const auto& i : elements)
-        {
-            if (skipEmpty && i.sum() == 0)
-                continue;
-
-            ret += i.name + ',';
-            ret += i.size + ',';
-            ret += std::to_string(i.sum());
-
-            for (size_t u = 0; u < locationIndices.size(); u++)
-                ret += ',' + std::to_string(i.getCount(u));
-            ret += '\n';
-        }
-        return ret;
+        std::stringstream ss;
+        outputStream stream{ ss };
+        exportToStream(stream, skipEmpty);
+        return ss.str();
     }
 
     size_t getCurrentLocation() const
@@ -560,18 +594,18 @@ public:
     {
         switch (code)
         {
-        default:
-            return "Bad error code.";
-        case(fileError::none):
-            return "No error.";
-        case(fileError::unable_to_open):
-            return "Unable to open file.";
-        case(fileError::bad_BOM):
-            return "Invalid BOM.";
-        case(fileError::bad_header):
-            return "Invalid header layout.";
-        case(fileError::unable_to_parse_count):
-            return "File contained invalid count value.";
+            default:
+                return "Bad error code.";
+            case(fileError::none):
+                return "No error.";
+            case(fileError::unable_to_open):
+                return "Unable to open file.";
+            case(fileError::bad_BOM):
+                return "Invalid BOM.";
+            case(fileError::bad_header):
+                return "Invalid header layout.";
+            case(fileError::unable_to_parse_count):
+                return "File contained invalid count value.";
         }
     }
 

@@ -105,7 +105,7 @@ Java_com_example_cppapp_StockTable_NativeGetStockCount(JNIEnv*, jobject , jptr p
 extern "C"
 JNIEXPORT jfloat JNICALL
 Java_com_example_cppapp_StockTable_NativeGetStockCountAt(JNIEnv*, jobject, jlong ptr,
-                                                         jint index, jint location) {
+                                                         jint index, int location) {
     return getPtr<stockTable>(ptr)->get(index).getCount(location);
 }
 extern "C"

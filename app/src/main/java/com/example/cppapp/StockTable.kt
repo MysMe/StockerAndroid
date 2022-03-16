@@ -2,7 +2,7 @@ package com.example.cppapp
 
 typealias pointer = Long
 
-class StockTable() {
+class StockTable {
 
     private var ptr: pointer = 0
     private external fun NativeNew(): pointer

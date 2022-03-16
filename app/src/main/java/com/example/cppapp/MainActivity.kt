@@ -35,10 +35,10 @@ class MainActivity : AppCompatActivity() {
     private fun toast(message: String)
     {
         Toast.makeText(
-            getApplicationContext(),
+            applicationContext,
             message,
             Toast.LENGTH_SHORT
-        ).show();
+        ).show()
     }
 
     private fun setSearch(enabled: Boolean) {
@@ -97,9 +97,12 @@ class MainActivity : AppCompatActivity() {
                 toast("File loaded successfully")
 
                 spinnerAdapter.clear()
-                for (i in 0 until table.getLocationCount())
-                {
-                    spinnerAdapter.add(table.getLocationName(i))
+                if (table.getLocationCount() == 0)
+                    spinnerAdapter.add(("Global"))
+                else {
+                    for (i in 0 until table.getLocationCount()) {
+                        spinnerAdapter.add(table.getLocationName(i))
+                    }
                 }
                 spinnerAdapter.notifyDataSetChanged()
                 val item = spinnerAdapter.getItem(0)
@@ -233,11 +236,11 @@ class MainActivity : AppCompatActivity() {
         spinnerAdapter.notifyDataSetChanged()
     }
 
-    fun broadcastCount(min: Boolean)
+    private fun broadcastCount(min: Boolean)
     {
-        var UDP = UDPSender(Char(40404));
+        var UDP = UDPSender(Char(40404))
         UDP.use {
-            UDP.broadcastAddressRequest();
+            UDP.broadcastAddressRequest()
             var res = UDP.awaitMessage(Char(1000))
             if (!res.valid()) {
                 toast("Did not get any response")

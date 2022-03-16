@@ -83,7 +83,7 @@ class SearchResultActivity : AppCompatActivity() {
         val searchResult = lookups.search(searchTerm)
 
         for (i in 1..searchResult.size()) {
-            val index = searchResult[i - 1];
+            val index = searchResult[i - 1]
             data.add(ItemsViewModel(table.getStockName(index), table.getStockSize(index), index))
         }
 

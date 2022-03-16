@@ -12,7 +12,7 @@ class UDPSender : AutoCloseable {
     private external fun NativeRequestLink(ptr: pointer, target: String, port: Char)
     private external fun NativeAwaitMessage(ptr: pointer, timeoutMS: Char): pointer
 
-    public constructor(port: Char) {
+    constructor(port: Char) {
         ptr = NativeNew(port)
     }
 

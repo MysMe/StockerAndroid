@@ -41,7 +41,7 @@ class AlterStockActivity : AppCompatActivity() {
         if (delta == null)
         {
             input.setBackgroundColor(Color.RED)
-            Toast.makeText(getApplicationContext(), "Number required", Toast.LENGTH_LONG).show();
+            Toast.makeText(applicationContext, "Number required", Toast.LENGTH_LONG).show()
             return false
         }
 
