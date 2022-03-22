@@ -61,9 +61,12 @@ struct stockElement
     }
 };
 
+
+
 class stockTable
 {
 
+private:
     class inputStockSource
     {
     public:
@@ -184,6 +187,7 @@ class stockTable
     }
 
     std::vector<stockElement> elements;
+    using elementIterator = decltype(elements)::const_iterator;
 
     std::vector<std::string> locationIndices;
     size_t location = 0;
@@ -210,9 +214,6 @@ class stockTable
                 i.name.pop_back();
             }
         }
-
-        //Sort into consistent order
-        std::sort(elements.begin(), elements.end());
     }
 
 public:
@@ -223,6 +224,51 @@ public:
         bad_BOM,
         bad_header,
         unable_to_parse_count
+    };
+
+    class stockTableFullSearch
+    {
+        struct comp
+        {
+            comp(stockTable::elementIterator beg) : begin(beg) {}
+
+            stockTable::elementIterator begin;
+            bool operator()(const stockTable::elementIterator& l, const stockTable::elementIterator& r)
+            {
+                if (l->name != r->name)
+                    return l->name < r->name;
+                return std::distance(begin, l) < std::distance(begin, r);
+            }
+        };
+
+        std::vector<stockTable::elementIterator> iterators;
+    public:
+
+        using const_iterator = decltype(iterators)::const_iterator;
+
+        stockTableFullSearch(const stockTable& table)
+        {
+            iterators.reserve(table.elements.size());
+            for (auto it = table.elements.cbegin(); it != table.elements.cend(); ++it)
+                iterators.push_back(it);
+            std::sort(iterators.begin(), iterators.end(), comp(table.elements.begin()));
+        }
+
+        auto search(const std::string& keyword) const
+        {
+            struct cmp
+            {
+                bool operator()(const stockTable::elementIterator& elem, const std::string& str) const
+                {
+                    return elem->name < str;
+                }
+                bool operator()(const std::string& str, const stockTable::elementIterator& elem) const
+                {
+                    return str < elem->name;
+                }
+            };
+            return std::equal_range(iterators.cbegin(), iterators.cend(), keyword, cmp());
+        }
     };
 private:
 
@@ -326,11 +372,10 @@ private:
                 line.pop_back();
 
             //Verify fields against template
-            static const std::array<std::string, 4> layout =
+            static const std::array<std::string, 3> layout =
                     {
                             "Name",
                             "Size",
-                            "Quantity",
                             "Total"
                     };
             size_t pos = 0;
@@ -389,7 +434,7 @@ private:
 
     void exportToStream(outputStockSource& stream, const bool skipEmpty) const
     {
-        stream << "Name,Size,Quantity,Total";
+        stream << "Name,Size,Total";
         for (const auto& i : locationIndices)
             stream << ',' << '\"' << i << '\"';
         stream << '\n';
@@ -415,22 +460,20 @@ public:
 
     fileError loadFromFStream(const std::string& source)
     {
-        std::ifstream stream(source, std::ios::in);
+        std::ifstream stream(source);
+        if (!stream)
+            return fileError::unable_to_open;
         stream.seekg(0, std::ios::beg);
 
         inputStream sfs(stream);
 
-        auto v = parseFromStream(sfs);
-        if (v != fileError::none)
-            return v;
-
-        return fileError::none;
+        return parseFromStream(sfs);
     }
 
     fileError reuseFromFStream(const std::string& source)
     {
         std::ifstream stream;
-        stream.open(source, std::ios::in);
+        stream.open(source);
         if (!stream.is_open())
             return fileError::unable_to_open;
         stream.seekg(0, std::ios::beg);
@@ -438,27 +481,21 @@ public:
 
         inputStream sfs(stream);
 
-        auto v = reuseFromStream(sfs);
-        if (v != fileError::none)
-            return v;
-
-        return fileError::none;
+        return reuseFromStream(sfs);
     }
 
     fileError loadFromString(const std::string& source)
     {
         std::stringstream ss(source);
         inputStream sfs(ss);
-        parseFromStream(sfs);
-        return fileError::none;
+        return parseFromStream(sfs);
     }
 
     fileError reuseFromString(const std::string& source)
     {
         std::stringstream ss(source);
         inputStream sfs(ss);
-        reuseFromStream(sfs);
-        return fileError::none;
+        return reuseFromStream(sfs);
     }
 
     fileError loadFromFILE(FILE* source)
@@ -467,11 +504,7 @@ public:
             return fileError::unable_to_open;
         inputFILE sfs(source);
 
-        auto v = parseFromStream(sfs);
-        if (v != fileError::none)
-            return v;
-
-        return fileError::none;
+        return parseFromStream(sfs);
     }
 
     fileError reuseFromFILE(FILE* source)
@@ -480,28 +513,29 @@ public:
             return fileError::unable_to_open;
         inputFILE sfs(source);
 
-        auto v = reuseFromStream(sfs);
-        if (v != fileError::none)
-            return v;
-
-        return fileError::none;
+        return reuseFromStream(sfs);
     }
 
-    auto fullSearch(const std::string& keyword) const
+    auto getFullSearchList() const
     {
-        struct comp
-        {
-            bool operator()(const stockElement& elem, const std::string& str) const
-            {
-                return elem.name < str;
-            }
-            bool operator()(const std::string& str, const stockElement& elem) const
-            {
-                return str < elem.name;
-            }
-        };
-        return std::equal_range(elements.cbegin(), elements.cend(), keyword, comp());
+        return stockTableFullSearch(*this);
     }
+
+    //auto fullSearch(const std::string& keyword) const
+    //{
+    //    struct comp
+    //    {
+    //        bool operator()(const stockElement& elem, const std::string& str) const
+    //        {
+    //            return elem.name < str;
+    //        }
+    //        bool operator()(const std::string& str, const stockElement& elem) const
+    //        {
+    //            return str < elem.name;
+    //        }
+    //    };
+    //    return std::equal_range(elements.cbegin(), elements.cend(), keyword, comp());
+    //}
 
     const stockElement& get(size_t idx) const
     {

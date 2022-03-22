@@ -32,7 +32,7 @@ public:
 	lookupTable& operator=(const lookupTable&) = default;
 	lookupTable& operator=(lookupTable&&) = default;
 
-    std::vector<size_t> splitSearch(const std::string& keywords) const;
+	std::vector<size_t> splitSearch(const std::string& keywords) const;
 
 	std::vector<size_t> search(const std::vector<std::string>& keywords) const;
 };
