@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_quickload"
+        android:title="QuickLoad"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_quicksave"
+        android:title="Quicksave"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_save"
+        android:title="Save"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_save_min"
+        android:title="Save Minimal"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/action_import"
+        android:title="Import"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/action_reuse"
+        android:title="Reuse"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/action_broadcast"
+        android:title="Broadcast"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/action_broadcast_min"
+        android:title="Broadcast Min"
+        app:showAsAction="never"/>
+
+</menu>

@@ -22,4 +22,5 @@
     <style name="Theme.CPPApp.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.CPPApp.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
 </resources>

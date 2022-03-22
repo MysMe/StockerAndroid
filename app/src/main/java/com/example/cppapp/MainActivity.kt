@@ -5,7 +5,6 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.AlarmClock.EXTRA_MESSAGE
-import android.view.View
 import androidx.core.app.ActivityCompat
 import com.example.cppapp.databinding.ActivityMainBinding
 import android.content.pm.PackageManager
@@ -20,9 +19,40 @@ import android.widget.AdapterView
 import androidx.annotation.RequiresApi
 import java.lang.StringBuilder
 
+import androidx.appcompat.widget.Toolbar
+import android.widget.TextView
+import android.content.DialogInterface
+import android.provider.AlarmClock
+import android.view.*
+import androidx.collection.CircularArray
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import java.io.File
+import android.widget.SpinnerAdapter as SpinnerAdapter
+
+
 var table: StockTable = StockTable()
 var lookups: LookupTable = LookupTable(table)
 
+class bufferData{
+    public var ID: Int
+    public var  delta: Float
+
+    constructor(id: Int, delta: Float)
+    {
+        this.ID = id
+        this.delta = delta
+    }
+}
+
+var history: MutableList<bufferData> = mutableListOf<bufferData>()
+
+fun addToHistory(ID: Int, delta: Float)
+{
+    history.add(0, bufferData(ID, delta))
+    while (history.size > 5)
+        history.removeAt(5)
+}
 
 @RequiresApi(Build.VERSION_CODES.Q)
 class MainActivity : AppCompatActivity() {
@@ -31,6 +61,40 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var spinnerAdapter: ArrayAdapter<String>
     private lateinit var source: Uri
+
+    class CustomAdapter(private val parent: MainActivity) : RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
+
+        // create new views
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            // inflates the card_view_design view
+            // that is used to hold list item
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.stock_entry_layout, parent, false)
+
+            return ViewHolder(view)
+        }
+
+        // binds the list items to a view
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+
+            val item = history[position]
+
+            // sets the text to the textview from our itemHolder class
+            holder.product.text = table.getStockName(item.ID)
+            holder.delta.text = item.delta.toString()
+        }
+
+        // return the number of the items in the list
+        override fun getItemCount(): Int {
+            return history.size
+        }
+
+        // Holds the views for adding it to image and text
+        class ViewHolder(ItemView: View) : RecyclerView.ViewHolder(ItemView) {
+            val product: TextView = itemView.findViewById(R.id.StockName)
+            val delta: TextView = itemView.findViewById(R.id.StockSize)
+        }
+    }
 
     private fun toast(message: String)
     {
@@ -140,35 +204,125 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun quickSave()
+    {
+        val file = File(filesDir, "quickdata.csv")
+        table.exportToFile(file.path, false)
+        toast("File saved successfully")
+    }
+
+    private fun quickLoad() {
+        val file = File(filesDir, "quickdata.csv")
+        val res = table.reuseFromFile(file.path)
+
+        if (res != 0) {
+            toast("Unable to open file: " + table.getImportError(res))
+        } else {
+            lookups = LookupTable(table)
+            toast("File loaded successfully")
+
+            spinnerAdapter.clear()
+            if (table.getLocationCount() == 0)
+                spinnerAdapter.add(("Global"))
+            else {
+                for (i in 0 until table.getLocationCount()) {
+                    spinnerAdapter.add(table.getLocationName(i))
+                }
+            }
+            spinnerAdapter.notifyDataSetChanged()
+            val item = spinnerAdapter.getItem(0)
+            table.setLocation(item.toString())
+        }
+        setSearch(res == 0)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.action_quicksave -> {
+            quickSave()
+            true
+        }
+
+        R.id.action_quickload -> {
+            quickLoad()
+            true
+        }
+
+        R.id.action_save -> {
+            getFileForExport.launch("out.csv")
+            true
+        }
+
+        R.id.action_save_min -> {
+            getFileForMinExport.launch("out.csv")
+            true
+        }
+
+        R.id.action_import -> {
+            getFileForImport.launch("text/*")
+            true
+        }
+
+        R.id.action_reuse -> {
+            getFileForReuse.launch("text/*")
+            true
+        }
+
+
+        R.id.action_broadcast -> {
+            broadcastCount(false)
+            true
+        }
+
+
+        R.id.action_broadcast_min -> {
+            broadcastCount(true)
+            true
+        }
+
+        else -> {
+            // If we got here, the user's action was not recognized.
+            // Invoke the superclass to handle it.
+            super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun displayHistory()
+    {
+        val hist = findViewById<RecyclerView>(R.id.Main_History)
+
+        // this creates a vertical layout Manager
+        hist.layoutManager = LinearLayoutManager(this)
+
+        // This will pass the ArrayList to our Adapter
+        val adapter = CustomAdapter(this)
+
+        // Setting the Adapter with the recyclerview
+        hist.adapter = adapter
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.main_toolbar, menu)
+        return true
+    }
+
+    override fun onResume()
+    {
+        super.onResume()
+        displayHistory()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setSupportActionBar(findViewById(R.id.toolbar))
+
 
         setSearch(false)
 
         requestPermission()
-
-        val importButton = findViewById<Button>(R.id.Main_ImportButton)
-        importButton.setOnClickListener{
-            getFileForImport.launch("text/*")
-        }
-
-        val reimportButton = findViewById<Button>(R.id.Main_ReimportButton)
-        reimportButton.setOnClickListener{
-            getFileForReuse.launch("text/*")
-        }
-
-        val exportButton = findViewById<Button>(R.id.Main_ExportButton)
-        exportButton.setOnClickListener{
-            getFileForExport.launch("out.csv")
-        }
-
-        val exportMinButton = findViewById<Button>(R.id.Main_MinexportButton)
-        exportMinButton.setOnClickListener{
-            getFileForMinExport.launch("out.csv")
-        }
 
         val spinner = findViewById<Spinner>(R.id.Main_LocationSpinner)
 
@@ -188,6 +342,7 @@ class MainActivity : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
+        displayHistory()
 
         spinnerAdapter=
             ArrayAdapter<String>(this, android.R.layout.simple_spinner_item)

@@ -46,6 +46,7 @@ class AlterStockActivity : AppCompatActivity() {
         }
 
         table.alter(stockID, delta)
+        addToHistory(stockID, delta)
         return true
     }
 
