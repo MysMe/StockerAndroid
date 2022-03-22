@@ -51,7 +51,8 @@ struct fileHandle
 
     ~fileHandle()
     {
-        fclose(fptr);
+        if (fptr != nullptr)
+            fclose(fptr);
     }
 };
 
