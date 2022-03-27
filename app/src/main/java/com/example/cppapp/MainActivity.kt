@@ -7,29 +7,21 @@ import android.os.Bundle
 import android.provider.AlarmClock.EXTRA_MESSAGE
 import androidx.core.app.ActivityCompat
 import com.example.cppapp.databinding.ActivityMainBinding
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 
-import androidx.core.content.ContextCompat
 import androidx.core.view.size
 import android.widget.AdapterView
 import androidx.annotation.RequiresApi
-import java.lang.StringBuilder
 
-import androidx.appcompat.widget.Toolbar
 import android.widget.TextView
-import android.content.DialogInterface
-import android.provider.AlarmClock
 import android.view.*
 import androidx.appcompat.app.AlertDialog
-import androidx.collection.CircularArray
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.io.File
-import android.widget.SpinnerAdapter as SpinnerAdapter
 
 
 var table: StockTable = StockTable()
@@ -355,6 +347,7 @@ class MainActivity : AppCompatActivity() {
     {
         super.onResume()
         displayHistory()
+        findViewById<EditText>(R.id.Main_SearchInput).requestFocus()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
