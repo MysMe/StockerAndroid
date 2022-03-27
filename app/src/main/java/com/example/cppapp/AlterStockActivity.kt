@@ -1,16 +1,14 @@
 package com.example.cppapp
 
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.view.inputmethod.InputMethodManager
-import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+
 
 class AlterStockActivity : AppCompatActivity() {
 
@@ -32,6 +30,8 @@ class AlterStockActivity : AppCompatActivity() {
         else
             findViewById<TextView>(R.id.Alter_Location).text = "Current Count For " + table.getLocationName(table.getCurrentLocation()) +
                 ": " + table.getStockCountAt(stockID, table.getCurrentLocation())
+
+        findViewById<EditText>(R.id.Alter_Value).requestFocus()
     }
 
     private fun applyAlter(): Boolean
