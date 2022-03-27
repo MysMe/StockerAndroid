@@ -24,6 +24,7 @@ import android.widget.TextView
 import android.content.DialogInterface
 import android.provider.AlarmClock
 import android.view.*
+import androidx.appcompat.app.AlertDialog
 import androidx.collection.CircularArray
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -169,7 +170,9 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 spinnerAdapter.notifyDataSetChanged()
-                val item = spinnerAdapter.getItem(0)
+                val item = spinnerAdapter.getItem(spinnerAdapter.count - 1)
+                val spinner = findViewById<Spinner>(R.id.Main_LocationSpinner)
+                spinner.setSelection(spinner.count - 1)
                 table.setLocation(item.toString())
             }
             setSearch(res == 0)
@@ -211,7 +214,8 @@ class MainActivity : AppCompatActivity() {
         toast("File saved successfully")
     }
 
-    private fun quickLoad() {
+    private fun quickLoad()
+    {
         val file = File(filesDir, "quickdata.csv")
         val res = table.reuseFromFile(file.path)
 
@@ -230,10 +234,39 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             spinnerAdapter.notifyDataSetChanged()
-            val item = spinnerAdapter.getItem(0)
+            val item = spinnerAdapter.getItem(spinnerAdapter.count - 1)
+            val spinner = findViewById<Spinner>(R.id.Main_LocationSpinner)
+            spinner.setSelection(spinner.count - 1)
             table.setLocation(item.toString())
         }
         setSearch(res == 0)
+    }
+
+    private fun quickLoadQuery() {
+        if (findViewById<Button>(R.id.Main_SearchButton).isEnabled == false)
+        {
+            quickLoad()
+            return
+        }
+        val builder = AlertDialog.Builder(this)
+
+        builder.setTitle("Confirm")
+        builder.setMessage("Any unsaved data will be lost.")
+
+        builder.setPositiveButton("YES") { dialog, which ->
+            quickLoad()
+            dialog.dismiss()
+        }
+
+        builder.setNegativeButton(
+            "NO"
+        ) { dialog, which ->
+            dialog.dismiss()
+        }
+
+        val alert = builder.create()
+        alert.show()
+
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
@@ -243,7 +276,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         R.id.action_quickload -> {
-            quickLoad()
+            quickLoadQuery()
             true
         }
 
