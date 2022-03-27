@@ -83,6 +83,18 @@ class MainActivity : AppCompatActivity() {
             // sets the text to the textview from our itemHolder class
             holder.product.text = table.getStockName(item.ID)
             holder.delta.text = item.delta.toString()
+
+            holder.itemView.setOnClickListener {
+                onClick(position)
+            }
+        }
+
+        private fun onClick(index: Int)
+        {
+            val intent = Intent(parent, AlterStockActivity::class.java)
+            intent.putExtra("com.example.cppapp.STOCKID", history[index].ID.toString())
+
+            parent.startActivity(intent)
         }
 
         // return the number of the items in the list
