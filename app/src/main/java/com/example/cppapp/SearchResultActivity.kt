@@ -30,8 +30,6 @@ class SearchResultActivity : AppCompatActivity() {
         private fun onClick(item: ItemsViewModel)
         {
             val intent = Intent(parent, AlterStockActivity::class.java)
-            intent.putExtra("com.example.cppapp.STOCKNAME", item.name)
-            intent.putExtra("com.example.cppapp.STOCKSIZE", item.size)
             intent.putExtra("com.example.cppapp.STOCKID", item.idx.toString())
 
             parent.startActivity(intent)

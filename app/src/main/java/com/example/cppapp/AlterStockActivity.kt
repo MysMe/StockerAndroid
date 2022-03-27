@@ -20,9 +20,9 @@ class AlterStockActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_alter_stock)
 
-        val stockName = intent.getStringExtra("com.example.cppapp.STOCKNAME")
-        val stockSize = intent.getStringExtra("com.example.cppapp.STOCKSIZE")
         stockID = intent.getStringExtra("com.example.cppapp.STOCKID")!!.toInt()
+        val stockName = table.getStockName(stockID)
+        val stockSize = table.getStockSize(stockID)
 
         findViewById<TextView>(R.id.Alter_StockName).text = "Product Name: $stockName"
         findViewById<TextView>(R.id.Alter_StockSize).text = "Product Size: $stockSize"
