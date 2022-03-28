@@ -22,6 +22,20 @@ import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.io.File
+import android.widget.Toast
+import android.view.inputmethod.EditorInfo
+
+import android.widget.TextView.OnEditorActionListener
+import android.widget.EditText
+
+
+
+
+
+
+
+
+
 
 
 var table: StockTable = StockTable()
@@ -357,6 +371,20 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(findViewById(R.id.toolbar))
 
+        findViewById<EditText>(R.id.Main_SearchInput)
+            .setOnKeyListener(object : View.OnKeyListener {
+            override fun onKey(v: View?, keyCode: Int, event: KeyEvent): Boolean {
+                // If the event is a key-down event on the "enter" button
+                if (event.action === KeyEvent.ACTION_DOWN &&
+                    keyCode == KeyEvent.KEYCODE_ENTER
+                ) {
+                    // Perform action on key press
+                    search(v!!)
+                    return true
+                }
+                return false
+            }
+        })
 
         setSearch(false)
 
