@@ -136,6 +136,8 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.Main_SearchButton).isEnabled = enabled
         findViewById<Button>(R.id.Main_AddLocationButton).isEnabled = enabled
         findViewById<Spinner>(R.id.Main_LocationSpinner).isEnabled = enabled
+        findViewById<EditText>(R.id.Main_SearchInput).isEnabled = enabled
+        findViewById<EditText>(R.id.Main_LocationInput).isEnabled = enabled
     }
 
     private fun requestPermission() {
