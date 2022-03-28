@@ -115,6 +115,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun clearHistory()
+    {
+        history.clear()
+        displayHistory()
+    }
+
     private fun toast(message: String)
     {
         Toast.makeText(
@@ -146,6 +152,7 @@ class MainActivity : AppCompatActivity() {
             uri: Uri? ->
         if (uri != null)
         {
+            clearHistory()
             val f = contentResolver.openFile(uri, "r", null)!!.fd.toString()
             val res = table.importFromFile("/proc/self/fd/$f")
 
@@ -167,6 +174,7 @@ class MainActivity : AppCompatActivity() {
     {
             uri: Uri? ->
         if (uri != null) {
+            clearHistory()
             val f = contentResolver.openFile(uri, "r", null)!!.fd.toString()
             val res = table.reuseFromFile("/proc/self/fd/$f")
 
@@ -234,6 +242,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun quickLoad()
     {
+        clearHistory()
         val file = File(filesDir, "quickdata.csv")
         val res = table.reuseFromFile(file.path)
 
