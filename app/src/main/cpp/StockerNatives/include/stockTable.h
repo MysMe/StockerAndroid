@@ -521,6 +521,22 @@ public:
         return stockTableFullSearch(*this);
     }
 
+    //auto fullSearch(const std::string& keyword) const
+    //{
+    //    struct comp
+    //    {
+    //        bool operator()(const stockElement& elem, const std::string& str) const
+    //        {
+    //            return elem.name < str;
+    //        }
+    //        bool operator()(const std::string& str, const stockElement& elem) const
+    //        {
+    //            return str < elem.name;
+    //        }
+    //    };
+    //    return std::equal_range(elements.cbegin(), elements.cend(), keyword, comp());
+    //}
+
     const stockElement& get(size_t idx) const
     {
         return elements[idx];
