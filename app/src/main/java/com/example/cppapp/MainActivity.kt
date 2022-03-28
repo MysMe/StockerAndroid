@@ -517,16 +517,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun broadcastMin(view: View)
-    {
-        broadcastCount(true)
-    }
-
-    fun broadcastAll(view: View)
-    {
-        broadcastCount(false)
-    }
-
     companion object {
         // Used to load the 'cppapp' library on application startup.
         init {
