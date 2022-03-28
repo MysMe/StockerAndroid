@@ -389,7 +389,7 @@ class MainActivity : AppCompatActivity() {
                     keyCode == KeyEvent.KEYCODE_ENTER
                 ) {
                     // Perform action on key press
-                    search()
+                    search(v!!)
                     return true
                 }
                 return false
@@ -429,7 +429,7 @@ class MainActivity : AppCompatActivity() {
         spinnerAdapter.notifyDataSetChanged()
     }
 
-    fun search() {
+    fun search(view: View) {
         val editText = findViewById<EditText>(R.id.Main_SearchInput)
         val message = editText.text.toString()
         editText.text.clear()

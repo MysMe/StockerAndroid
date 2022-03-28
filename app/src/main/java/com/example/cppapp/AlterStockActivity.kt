@@ -40,7 +40,7 @@ class AlterStockActivity : AppCompatActivity() {
                         keyCode == KeyEvent.KEYCODE_ENTER
                     ) {
                         // Perform action on key press
-                        confirmAlter()
+                        confirmAlter(v!!)
                         return true
                     }
                     return false
@@ -66,7 +66,7 @@ class AlterStockActivity : AppCompatActivity() {
         return true
     }
 
-    fun confirmAlter() {
+    fun confirmAlter(view: View) {
         if (!applyAlter())
             return
 
@@ -75,18 +75,18 @@ class AlterStockActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    fun confirmAndBackToResult() {
+    fun confirmAndBackToResult(view: View) {
         if (!applyAlter())
             return
 
         finish()
     }
 
-    fun backToSearchResult() {
+    fun backToSearchResult(view: View) {
         finish()
     }
 
-    fun backToSearch() {
+    fun backToSearch(view: View) {
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         startActivity(intent)
