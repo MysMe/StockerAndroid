@@ -167,6 +167,8 @@ class MainActivity : AppCompatActivity() {
             else
             {
                 lookups = LookupTable(table)
+                spinnerAdapter.clear()
+                spinnerAdapter.add("Global")
                 toast("File loaded successfully")
             }
             setSearch(res == 0)
