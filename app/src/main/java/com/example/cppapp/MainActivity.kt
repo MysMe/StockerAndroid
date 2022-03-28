@@ -314,12 +314,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         R.id.action_save -> {
-            getFileForExport.launch("out.csv")
+            getFileForExport.launch("count.csv")
             true
         }
 
         R.id.action_save_min -> {
-            getFileForMinExport.launch("out.csv")
+            getFileForMinExport.launch("count.csv")
             true
         }
 
