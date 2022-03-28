@@ -27,7 +27,7 @@ class AlterStockActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.Alter_StockSize).text = "Product Size: $stockSize"
         findViewById<TextView>(R.id.Alter_CurrentStock).text = "Current Count Total: " + table.getStockCount(stockID).toString()
         if (table.getLocationCount() == 0)
-            findViewById<TextView>(R.id.Alter_Location).text = ""
+            findViewById<TextView>(R.id.Alter_Location).text = "Current Count For Global: 0" //We know that nothing has been added because no locations have been set, ergo this must be 0
         else
             findViewById<TextView>(R.id.Alter_Location).text = "Current Count For " + table.getLocationName(table.getCurrentLocation()) +
                 ": " + table.getStockCountAt(stockID, table.getCurrentLocation())
