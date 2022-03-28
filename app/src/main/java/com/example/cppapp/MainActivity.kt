@@ -1,7 +1,6 @@
 package com.example.cppapp
 
 import android.Manifest
-import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -24,10 +23,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.io.File
 import android.widget.Toast
-import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 
-import android.widget.TextView.OnEditorActionListener
 import android.widget.EditText
 
 
@@ -43,22 +40,13 @@ import android.widget.EditText
 var table: StockTable = StockTable()
 var lookups: LookupTable = LookupTable(table)
 
-class bufferData{
-    public var ID: Int
-    public var  delta: Float
+class BufferData(var id: Int, var delta: Float)
 
-    constructor(id: Int, delta: Float)
-    {
-        this.ID = id
-        this.delta = delta
-    }
-}
-
-var history: MutableList<bufferData> = mutableListOf<bufferData>()
+var history: MutableList<BufferData> = mutableListOf()
 
 fun addToHistory(ID: Int, delta: Float)
 {
-    history.add(0, bufferData(ID, delta))
+    history.add(0, BufferData(ID, delta))
     while (history.size > 5)
         history.removeAt(5)
 }
@@ -89,7 +77,7 @@ class MainActivity : AppCompatActivity() {
             val item = history[position]
 
             // sets the text to the textview from our itemHolder class
-            holder.product.text = table.getStockName(item.ID)
+            holder.product.text = table.getStockName(item.id)
             holder.delta.text = item.delta.toString()
 
             holder.itemView.setOnClickListener {
@@ -100,7 +88,7 @@ class MainActivity : AppCompatActivity() {
         private fun onClick(index: Int)
         {
             val intent = Intent(parent, AlterStockActivity::class.java)
-            intent.putExtra("com.example.cppapp.STOCKID", history[index].ID.toString())
+            intent.putExtra("com.example.cppapp.STOCKID", history[index].id.toString())
 
             parent.startActivity(intent)
         }
@@ -241,7 +229,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun quickSave()
     {
-        val file = File(filesDir, "quickdata.csv")
+        val file = File(filesDir, "quick_data.csv")
         table.exportToFile(file.path, false)
         toast("File saved successfully")
     }
@@ -249,7 +237,7 @@ class MainActivity : AppCompatActivity() {
     private fun quickLoad()
     {
         clearHistory()
-        val file = File(filesDir, "quickdata.csv")
+        val file = File(filesDir, "quick_data.csv")
         val res = table.reuseFromFile(file.path)
 
         if (res != 0) {
@@ -286,14 +274,14 @@ class MainActivity : AppCompatActivity() {
         builder.setTitle("Confirm")
         builder.setMessage("Any unsaved data will be lost.")
 
-        builder.setPositiveButton("YES") { dialog, which ->
+        builder.setPositiveButton("YES") { dialog, _ ->
             quickLoad()
             dialog.dismiss()
         }
 
         builder.setNegativeButton(
             "NO"
-        ) { dialog, which ->
+        ) { dialog, _ ->
             dialog.dismiss()
         }
 
@@ -380,7 +368,7 @@ class MainActivity : AppCompatActivity() {
             val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
             val editText = findViewById<EditText>(R.id.Main_SearchInput)
             editText.requestFocus()
-            editText.postDelayed(Runnable {
+            editText.postDelayed({
                 imm.showSoftInput(editText, 0)
             }, 100)
         }
@@ -401,7 +389,7 @@ class MainActivity : AppCompatActivity() {
                     keyCode == KeyEvent.KEYCODE_ENTER
                 ) {
                     // Perform action on key press
-                    search(v!!)
+                    search()
                     return true
                 }
                 return false
@@ -441,7 +429,7 @@ class MainActivity : AppCompatActivity() {
         spinnerAdapter.notifyDataSetChanged()
     }
 
-    fun search(view: View) {
+    fun search() {
         val editText = findViewById<EditText>(R.id.Main_SearchInput)
         val message = editText.text.toString()
         editText.text.clear()
@@ -451,7 +439,7 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    fun addLocation(view: View){
+    fun addLocation() {
         val locationSrc = findViewById<EditText>(R.id.Main_LocationInput)
         val location = locationSrc.text.toString()
         if (location.isEmpty())
@@ -481,10 +469,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun broadcastCount(min: Boolean)
     {
-        var UDP = UDPSender(Char(40404))
-        UDP.use {
-            UDP.broadcastAddressRequest()
-            var res = UDP.awaitMessage(Char(1000))
+        val udpSender = UDPSender(Char(40404))
+        udpSender.use {
+            udpSender.broadcastAddressRequest()
+            val res = udpSender.awaitMessage(Char(1000))
             if (!res.valid()) {
                 toast("Did not get any response")
                 return
@@ -493,8 +481,8 @@ class MainActivity : AppCompatActivity() {
             var timeouts = 0
 
             do {
-                UDP.sendLinkRequest(res.address(), Char(40405))
-                val nextRes = UDP.awaitMessage(Char(3000))
+                udpSender.sendLinkRequest(res.address(), Char(40405))
+                val nextRes = udpSender.awaitMessage(Char(3000))
                 if (!nextRes.valid())
                 {
                     timeouts++
@@ -502,7 +490,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 if (nextRes.address() != res.address())
                     continue
-                val m = nextRes.request()
+                
                 if (nextRes.request() == nextRes.requestConfirmLink())
                     break
                 if (nextRes.request() == nextRes.requestDenyLink())
@@ -520,9 +508,9 @@ class MainActivity : AppCompatActivity() {
             timeouts = 0
 
 
-            var TCP = TCPSender()
-            TCP.use {
-                while (!TCP.connect(res.address(), Char(40405), Char(300)))
+            val tcpSender = TCPSender()
+            tcpSender.use {
+                while (!tcpSender.connect(res.address(), Char(40405), Char(300)))
                 {
                     if (timeouts == maxTimeouts)
                     {
@@ -532,7 +520,7 @@ class MainActivity : AppCompatActivity() {
                     timeouts++
                 }
 
-                TCP.send(table.exportToString(min))
+                tcpSender.send(table.exportToString(min))
 
                 toast("Content sent")
             }
