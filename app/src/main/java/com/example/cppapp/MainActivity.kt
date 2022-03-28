@@ -1,6 +1,7 @@
 package com.example.cppapp
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -24,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView
 import java.io.File
 import android.widget.Toast
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 
 import android.widget.TextView.OnEditorActionListener
 import android.widget.EditText
@@ -270,7 +272,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun quickLoadQuery() {
-        if (findViewById<Button>(R.id.Main_SearchButton).isEnabled == false)
+        if (!findViewById<Button>(R.id.Main_SearchButton).isEnabled)
         {
             quickLoad()
             return
@@ -370,7 +372,14 @@ class MainActivity : AppCompatActivity() {
     {
         super.onResume()
         displayHistory()
-        findViewById<EditText>(R.id.Main_SearchInput).requestFocus()
+        if (findViewById<Button>(R.id.Main_SearchButton).isEnabled) {
+            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            val editText = findViewById<EditText>(R.id.Main_SearchInput)
+            editText.requestFocus()
+            editText.postDelayed(Runnable {
+                imm.showSoftInput(editText, 0)
+            }, 100)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
