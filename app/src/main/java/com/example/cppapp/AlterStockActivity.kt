@@ -36,11 +36,11 @@ class AlterStockActivity : AppCompatActivity() {
             .setOnKeyListener(object : View.OnKeyListener {
                 override fun onKey(v: View?, keyCode: Int, event: KeyEvent): Boolean {
                     // If the event is a key-down event on the "enter" button
-                    if (event.action === KeyEvent.ACTION_DOWN &&
+                    if (event.action == KeyEvent.ACTION_DOWN &&
                         keyCode == KeyEvent.KEYCODE_ENTER
                     ) {
                         // Perform action on key press
-                        confirmAlter(v!!)
+                        confirmAlter()
                         return true
                     }
                     return false
@@ -66,7 +66,7 @@ class AlterStockActivity : AppCompatActivity() {
         return true
     }
 
-    fun confirmAlter(view: View) {
+    fun confirmAlter() {
         if (!applyAlter())
             return
 
@@ -75,18 +75,18 @@ class AlterStockActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    fun confirmAndBackToResult(view: View) {
+    fun confirmAndBackToResult() {
         if (!applyAlter())
             return
 
         finish()
     }
 
-    fun backToSearchResult(view: View) {
+    fun backToSearchResult() {
         finish()
     }
 
-    fun backToSearch(view: View) {
+    fun backToSearch() {
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         startActivity(intent)
