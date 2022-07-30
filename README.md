@@ -1,7 +1,7 @@
 # StockerAndroid
 
 A core component of the overall "Stocker" project.  
-This application is designed to allow users to enter inventory information as part of regular inventory counts.
+This Android mobile application is designed to allow users to enter inventory information as part of regular inventory counts.
 The application takes some core functionality from the StockerBackend library.
 
 Additional components of the project:  
