@@ -9,5 +9,5 @@ Additional components of the project:
 A simple library for transmitting blocks of data using Boost ASIO.
 - StockerFrontend: https://github.com/MysMe/StockerFrontend  
 A Windows desktop application for displaying inventory information with basic management functionality.
-- StockerBackend: https://github.com/MysMe/StockerBackend
+- StockerBackend: https://github.com/MysMe/StockerBackend  
 A library containing common core functionality of the Stocker project.
